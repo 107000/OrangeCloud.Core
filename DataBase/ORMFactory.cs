@@ -227,7 +227,7 @@ namespace OrangeCloud.Core
         /// <param name="procName"></param>
         /// <param name="param"></param>
         /// <returns></returns>
-        public ORMFactory<T> RunProc(string procName, object param)
+        public ORMFactory<T> RunProc(string procName, object param = null)
         {
             ResetValue();
 
@@ -250,7 +250,7 @@ namespace OrangeCloud.Core
         /// <param name="sql">SQL语句</param>
         /// <param name="param">SQL参数</param>
         /// <returns></returns>
-        public ORMFactory<T> RunSql(string sql, object param)
+        public ORMFactory<T> RunSql(string sql, object param = null)
         {
             ResetValue();
 
@@ -274,7 +274,7 @@ namespace OrangeCloud.Core
         /// <param name="orderby">分页时必须传入order by语句</param>
         /// <param name="param">SQL参数</param>
         /// <returns></returns>
-        public ORMFactory<T> RunSql(string sql, string orderby, object param)
+        public ORMFactory<T> RunSql(string sql, string orderby, object param = null)
         {
             OrderBy = orderby;
 
