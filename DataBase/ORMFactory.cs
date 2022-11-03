@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
 
 namespace OrangeCloud.Core
 {
@@ -106,6 +105,16 @@ namespace OrangeCloud.Core
         private EConnectionMode ConnectionMode { get; set; }
 
         /// <summary>
+        /// 是否强制指定DB KEY
+        /// </summary>
+        private bool IsFixedConnectionKey { get; set; }
+
+        /// <summary>
+        /// 字符串链接KEY（强制指定后暂存）
+        /// </summary>
+        private string DBKey { get; set; }
+
+        /// <summary>
         /// 字符串链接
         /// </summary>
         private string ConnectionKey { get; set; }
@@ -113,20 +122,29 @@ namespace OrangeCloud.Core
         /// <summary>
         /// 初始化：使用 T 映射的数据库配置
         /// </summary>
-        public ORMFactory()
+        /// <param name="dbKey">强制指定链接字符串的KEY【不动态获取DBKEY，后续赋值的都无效】</param>
+        public ORMFactory(object dbKey = null)
         {
             TypeString = typeof(T).ToString();
 
             TableName = SqlCommon.GetTableName(TypeString);
 
             SelectColumns = "*";
+
+            if (dbKey != null)
+            {
+                IsFixedConnectionKey = true;
+
+                DBKey = dbKey.ToString();
+            }
         }
 
         /// <summary>
         /// 初始化：使用动态指向数据库
         /// </summary>
-        /// <param name="database">数据库配置KEY</param>
-        public ORMFactory(string database)
+        /// <param name="database">数据库名称</param>
+        /// <param name="dbKey">强制指定链接字符串的KEY【不动态获取DBKEY，后续赋值的都无效】</param>
+        public ORMFactory(string database, object dbKey = null)
         {
             TypeString = typeof(T).ToString();
 
@@ -135,14 +153,22 @@ namespace OrangeCloud.Core
             SelectColumns = "*";
 
             Database = database;
+
+            if (dbKey != null)
+            {
+                IsFixedConnectionKey = true;
+
+                DBKey = dbKey.ToString();
+            }
         }
 
         /// <summary>
         /// 初始化：使用动态指向服务器和数据库
         /// </summary>
         /// <param name="server">服务器IP</param>
-        /// <param name="database">数据库配置KEY</param>
-        public ORMFactory(string server, string database)
+        /// <param name="database">数据库名称</param>
+        /// <param name="dbKey">强制指定链接字符串的KEY【不动态获取DBKEY，后续赋值的都无效】</param>
+        public ORMFactory(string server, string database, object dbKey = null)
         {
             TypeString = typeof(T).ToString();
 
@@ -153,6 +179,13 @@ namespace OrangeCloud.Core
             Server = server;
 
             Database = database;
+
+            if (dbKey != null)
+            {
+                IsFixedConnectionKey = true;
+
+                DBKey = dbKey.ToString();
+            }
         }
 
         private void ResetValue()
@@ -174,6 +207,20 @@ namespace OrangeCloud.Core
             SelectColumns = "*";
 
             IsIncrement = false;
+        }
+
+        private void SetConnectionKey(object dbKey = null)
+        {
+            // 固定DB KEY
+            if (IsFixedConnectionKey == true)
+                ConnectionKey = SqlCommon.GetDBConncationKey(DBKey, ConnectionMode, true);
+            else
+            {
+                if (dbKey == null)
+                    ConnectionKey = SqlCommon.GetDBConncationKey(TypeString, ConnectionMode);
+                else
+                    ConnectionKey = SqlCommon.GetDBConncationKey(dbKey.ToString(), ConnectionMode, true);
+            }
         }
 
         /// <summary>
@@ -212,7 +259,7 @@ namespace OrangeCloud.Core
 
             OrderBy = expc.OrderBy();
 
-            ConnectionKey = SqlCommon.GetDBConncationKey(TypeString, ConnectionMode);
+            SetConnectionKey();
 
             Sql = null;
 
@@ -224,10 +271,11 @@ namespace OrangeCloud.Core
         /// <summary>
         /// 配置存储过程
         /// </summary>
-        /// <param name="procName"></param>
-        /// <param name="param"></param>
+        /// <param name="procName">存储过程名称</param>
+        /// <param name="param">存储过程参数</param>
+        /// <param name="dbKey">指定链接字符串的KEY【如果使用原生类型则必填】</param>
         /// <returns></returns>
-        public ORMFactory<T> RunProc(string procName, object param = null)
+        public ORMFactory<T> RunProc(string procName, object param = null, object dbKey = null)
         {
             ResetValue();
 
@@ -235,7 +283,9 @@ namespace OrangeCloud.Core
 
             ConnectionMode = EConnectionMode.Write;
 
-            ConnectionKey = SqlCommon.GetDBConncationKey(TypeString, ConnectionMode);
+            DBKey = dbKey.ToString();
+
+            SetConnectionKey(dbKey);
 
             ProcedureName = procName;
 
@@ -249,8 +299,9 @@ namespace OrangeCloud.Core
         /// </summary>
         /// <param name="sql">SQL语句</param>
         /// <param name="param">SQL参数</param>
+        /// <param name="dbKey">指定链接字符串的KEY【如果使用原生类型则必填】</param>
         /// <returns></returns>
-        public ORMFactory<T> RunSql(string sql, object param = null)
+        public ORMFactory<T> RunSql(string sql, object param = null, object dbKey = null)
         {
             ResetValue();
 
@@ -258,7 +309,7 @@ namespace OrangeCloud.Core
 
             ConnectionMode = EConnectionMode.Write;
 
-            ConnectionKey = SqlCommon.GetDBConncationKey(TypeString, ConnectionMode);
+            SetConnectionKey(dbKey);
 
             Sql = sql;
 
@@ -273,12 +324,13 @@ namespace OrangeCloud.Core
         /// <param name="sql">SQL语句</param>
         /// <param name="orderby">分页时必须传入order by语句</param>
         /// <param name="param">SQL参数</param>
+        /// <param name="dbKey">指定链接字符串的KEY【如果使用原生类型则必填】</param>
         /// <returns></returns>
-        public ORMFactory<T> RunSql(string sql, string orderby, object param = null)
+        public ORMFactory<T> RunSql(string sql, string orderby, object param = null, object dbKey = null)
         {
             OrderBy = orderby;
 
-            return RunSql(sql, param);
+            return RunSql(sql, param, dbKey);
         }
 
         /// <summary>
@@ -295,7 +347,7 @@ namespace OrangeCloud.Core
 
             ConnectionMode = EConnectionMode.Write;
 
-            ConnectionKey = SqlCommon.GetDBConncationKey(TypeString, ConnectionMode);
+            SetConnectionKey();
 
             IsIncrement = isIncrement;
 
@@ -319,7 +371,7 @@ namespace OrangeCloud.Core
 
             ConnectionMode = EConnectionMode.Write;
 
-            ConnectionKey = SqlCommon.GetDBConncationKey(TypeString, ConnectionMode);
+            SetConnectionKey();
 
             FillEntity.Instance.SetUpdateSysCols(t);
 
@@ -363,7 +415,7 @@ namespace OrangeCloud.Core
 
             ConnectionMode = EConnectionMode.Write;
 
-            ConnectionKey = SqlCommon.GetDBConncationKey(TypeString, ConnectionMode);
+            SetConnectionKey();
 
             FillEntity.Instance.SetUpdateSysCols(t);
 
@@ -391,7 +443,7 @@ namespace OrangeCloud.Core
 
             ConnectionMode = EConnectionMode.Write;
 
-            ConnectionKey = SqlCommon.GetDBConncationKey(TypeString, ConnectionMode);
+            SetConnectionKey();
 
             FillEntity.Instance.SetUpdateSysCols(t);
 
@@ -435,7 +487,7 @@ namespace OrangeCloud.Core
 
             ConnectionMode = EConnectionMode.Write;
 
-            ConnectionKey = SqlCommon.GetDBConncationKey(TypeString, ConnectionMode);
+            SetConnectionKey();
 
             FillEntity.Instance.SetUpdateSysCols(t);
 

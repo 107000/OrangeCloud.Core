@@ -8,6 +8,9 @@ using System.Transactions;
 
 namespace OrangeCloud.Core
 {
+    /// <summary>
+    /// OrangeCloud ORM
+    /// </summary>
     public static class ORM
     {
         /// <summary>
@@ -882,6 +885,121 @@ namespace OrangeCloud.Core
             list.Add(new MDynamicParameter() { name = name, value = value, dbType = dbType, size = size });
 
             return list;
+        }
+
+        /// <summary>
+        /// 实体类Mapping
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="NT"></typeparam>
+        /// <param name="source"></param>
+        /// <returns></returns>
+        public static NT MapTo<T, NT>(this T source)
+            where T : class
+            where NT : class
+        {
+            if (source == null) return default(NT);
+            var config = new AutoMapper.MapperConfiguration(cfg => cfg.CreateMap<T, NT>());
+            var mapper = config.CreateMapper();
+            return mapper.Map<NT>(source);
+        }
+
+        /// <summary>
+        /// 实体类Mapping
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="NT"></typeparam>
+        /// <param name="source"></param>
+        /// <param name="configExp"></param>
+        /// <returns></returns>
+        public static NT MapTo<T, NT>(this T source, Action<AutoMapper.IMapperConfigurationExpression> configExp)
+            where T : class
+            where NT : class
+        {
+            if (source == null) return default(NT);
+            var config = new AutoMapper.MapperConfiguration(configExp != null ? configExp : cfg => cfg.CreateMap<T, NT>());
+            var mapper = config.CreateMapper();
+            return mapper.Map<NT>(source);
+        }
+
+        /// <summary>
+        /// 实体类列表Mapping
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="NT"></typeparam>
+        /// <param name="source"></param>
+        /// <returns></returns>
+        public static List<NT> MapTo<T, NT>(this List<T> source)
+            where T : class
+            where NT : class
+        {
+            if (source == null) return new List<NT>();
+            var config = new AutoMapper.MapperConfiguration(cfg => cfg.CreateMap<T, NT>());
+            var mapper = config.CreateMapper();
+            return mapper.Map<List<NT>>(source);
+        }
+
+        /// <summary>
+        /// 实体类列表Mapping
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="NT"></typeparam>
+        /// <param name="source"></param>
+        /// <param name="configExp"></param>
+        /// <returns></returns>
+        public static List<NT> MapTo<T, NT>(this List<T> source, Action<AutoMapper.IMapperConfigurationExpression> configExp)
+            where T : class
+            where NT : class
+        {
+            if (source == null) return new List<NT>();
+            var config = new AutoMapper.MapperConfiguration(configExp != null ? configExp : cfg => cfg.CreateMap<T, NT>());
+            var mapper = config.CreateMapper();
+            return mapper.Map<List<NT>>(source);
+        }
+
+        /// <summary>
+        /// 创建 ORMFactory
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="dbKey">强制指定链接字符串的KEY【不动态获取DBKEY，后续赋值的都无效】</param>
+        /// <returns></returns>
+        public static ORMFactory<T> Build<T>(object dbKey = null)
+        {
+            Type type = typeof(ORMFactory<T>);
+            object[] parameters = new object[] { dbKey };
+            object obj = Activator.CreateInstance(type, parameters);
+            return obj as ORMFactory<T>;
+        }
+
+        /// <summary>
+        /// 创建 ORMFactory
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="database">数据库名称</param>
+        /// <param name="dbKey">强制指定链接字符串的KEY【不动态获取DBKEY，后续赋值的都无效】</param>
+        /// <returns></returns>
+        public static ORMFactory<T> Build<T>(string database, object dbKey = null)
+        {
+            Type type = typeof(ORMFactory<T>);
+            object[] parameters = new object[] { database, dbKey };
+            object obj = Activator.CreateInstance(type, parameters);
+            return obj as ORMFactory<T>;
+        }
+
+        /// <summary>
+        /// 创建 ORMFactory
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="server">服务器IP</param>
+        /// <param name="database">数据库名称</param>
+        /// <param name="dbKey">强制指定链接字符串的KEY【不动态获取DBKEY，后续赋值的都无效】</param>
+        /// <returns></returns>
+        public static ORMFactory<T> Build<T>(string server, string database, object dbKey = null)
+        {
+            Type type = typeof(ORMFactory<T>);
+            object[] parameters = new object[] { server, database, dbKey };
+            object obj = Activator.CreateInstance(type, parameters);
+            return obj as ORMFactory<T>;
         }
 
     }

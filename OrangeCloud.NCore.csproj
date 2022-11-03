@@ -7,14 +7,14 @@
     <Authors>樊嵘</Authors>
     <Company>OrangeCloud</Company>
     <Product>OrangeCloud.ORM</Product>
-    <Version>3.2.1.6</Version>
+    <Version>3.2.2.5</Version>
     <AssemblyName>OrangeCloud.Core</AssemblyName>
     <RootNamespace>OrangeCloud.Core</RootNamespace>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <AssemblyVersion>3.2.1.6</AssemblyVersion>
+    <AssemblyVersion>3.2.2.5</AssemblyVersion>
     <PackageReleaseNotes></PackageReleaseNotes>
-    <FileVersion>3.2.1.6</FileVersion>
+    <FileVersion>3.2.2.5</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -22,6 +22,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="9.0.0" />
     <PackageReference Include="Consul" Version="0.7.2.6" />
     <PackageReference Include="Dapper" Version="2.0.30" />
     <PackageReference Include="Microsoft.AspNetCore.Hosting.Abstractions" Version="2.2.0" />
