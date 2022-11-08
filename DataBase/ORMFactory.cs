@@ -329,9 +329,21 @@ namespace OrangeCloud.Core
         /// <returns></returns>
         public ORMFactory<T> RunSql(string sql, string orderby, object param = null, object dbKey = null)
         {
+            ResetValue();
+
+            ORMType = 2;
+
+            ConnectionMode = EConnectionMode.Write;
+
+            SetConnectionKey(dbKey);
+
+            Sql = sql;
+
             OrderBy = orderby;
 
-            return RunSql(sql, param, dbKey);
+            SqlParameter = SqlMapping.XParameters(param);
+
+            return this;
         }
 
         /// <summary>
