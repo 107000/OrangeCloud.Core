@@ -372,10 +372,10 @@ namespace OrangeCloud.Core.AiExpression
             {
                 this.Write("null");
             }
-            else if (c.Type == typeof(DateTime) || c.Type == typeof(Guid))
+            else if (c.Type == typeof(DateTime) || c.Type == typeof(Guid) || c.Type == typeof(DateTime?) || c.Type == typeof(Guid?))
             {
                 this.Write("'");//new DateTime(\" 
-                this.Write(c.Value.ToString());
+                this.Write(c.Value.ToString().Safe());
                 this.Write("'");//\"
             }
             else
@@ -396,12 +396,12 @@ namespace OrangeCloud.Core.AiExpression
                         break;
                     case TypeCode.DateTime:
                         this.Write("'");//new DateTime(\"
-                        this.Write(c.Value.ToString());
+                        this.Write(c.Value.ToString().Safe());
                         this.Write("'");//\"
                         break;
                     case TypeCode.String:
                         this.Write("N'");
-                        this.Write(c.Value.ToString().Replace("'", ""));
+                        this.Write(c.Value.ToString().Safe());
                         this.Write("'");
                         break;
                     case TypeCode.Object:
@@ -1146,6 +1146,20 @@ namespace OrangeCloud.Core.AiExpression
                             this.Write("(1 = 1)");
                         }
                         return m;
+                    case "DynamicNotLike":
+                        if (((ConstantExpression)m.Arguments[1]).Value != null)
+                        {
+                            this.Write("(");
+                            this.Visit(m.Arguments[0]);
+                            this.Write(" NOT LIKE '%' + ");
+                            this.Visit(m.Arguments[1]);
+                            this.Write(" + '%')");
+                        }
+                        else
+                        {
+                            this.Write("(1 = 1)");
+                        }
+                        return m;
                     case "DynamicIn":
                         if (((ConstantExpression)m.Arguments[1]).Value != null)
                         {
@@ -1160,12 +1174,40 @@ namespace OrangeCloud.Core.AiExpression
                             this.Write("(1 = 1)");
                         }
                         return m;
+                    case "DynamicNotIn":
+                        if (((ConstantExpression)m.Arguments[1]).Value != null)
+                        {
+                            this.Write("(");
+                            this.Visit(m.Arguments[0]);
+                            this.Write(" NOT IN (");
+                            this.Write(((ConstantExpression)m.Arguments[1]).ToSqlString());
+                            this.Write("))");
+                        }
+                        else
+                        {
+                            this.Write("(1 = 1)");
+                        }
+                        return m;
                     case "DynamicEquals":
                         if (((ConstantExpression)m.Arguments[1]).Value != null)
                         {
                             this.Write("(");
                             this.Visit(m.Arguments[0]);
                             this.Write(" = ");
+                            this.Visit(m.Arguments[1]);
+                            this.Write(")");
+                        }
+                        else
+                        {
+                            this.Write("(1 = 1)");
+                        }
+                        return m;
+                    case "DynamicNotEquals":
+                        if (((ConstantExpression)m.Arguments[1]).Value != null)
+                        {
+                            this.Write("(");
+                            this.Visit(m.Arguments[0]);
+                            this.Write(" != ");
                             this.Visit(m.Arguments[1]);
                             this.Write(")");
                         }

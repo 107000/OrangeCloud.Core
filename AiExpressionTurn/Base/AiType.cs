@@ -82,11 +82,23 @@ namespace OrangeCloud.Core
         {
             return true;
         }
+        public static bool DynamicNotIn(this object my, object obj)
+        {
+            return true;
+        }
         public static bool DynamicLike(this object my, string obj)
         {
             return true;
         }
+        public static bool DynamicNotLike(this object my, string obj)
+        {
+            return true;
+        }
         public static bool DynamicEquals(this object my, object obj)
+        {
+            return true;
+        }
+        public static bool DynamicNotEquals(this object my, object obj)
         {
             return true;
         }

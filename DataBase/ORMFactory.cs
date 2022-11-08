@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 
 namespace OrangeCloud.Core
 {
@@ -593,6 +594,30 @@ namespace OrangeCloud.Core
                     return conn.Query<T>(ProcedureName, SqlParameter, null, true, null, CommandType.StoredProcedure).FirstOrDefault();
                 else
                     return conn.Query<T>(Sql, SqlParameter).FirstOrDefault();
+            }
+        }
+
+        /// <summary>
+        /// 返回第一行数据
+        /// </summary>
+        /// <returns></returns>
+        public async Task<T> FirstOrDefaultAsync()
+        {
+            if (ORMType == 1)
+                Sql = SqlMapping.SqlServerGetList<T>(TableName, Where, OrderBy, SelectColumns, Nolock);
+
+            using (IDbConnection conn = SqlMapping.GetConnection(ConnectionKey, Database, Server))
+            {
+                if (ORMType == 3)
+                {
+                    var data = await conn.QueryAsync<T>(ProcedureName, SqlParameter, null, null, CommandType.StoredProcedure);
+                    return data.FirstOrDefault();
+                }
+                else
+                {
+                    var data = await conn.QueryAsync<T>(Sql, SqlParameter);
+                    return data.FirstOrDefault();
+                }
             }
         }
 
