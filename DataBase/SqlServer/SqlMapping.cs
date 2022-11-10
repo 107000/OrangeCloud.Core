@@ -785,9 +785,9 @@ namespace OrangeCloud.Core
                 return System.Data.DbType.Boolean;
             else if (type == typeof(char))
                 return System.Data.DbType.String;
-            else if (type == typeof(Guid))
+            else if (type == typeof(Guid?) || type == typeof(Guid))
                 return System.Data.DbType.Guid;
-            else if (type == typeof(TimeSpan))
+            else if (type == typeof(TimeSpan?) || type == typeof(TimeSpan))
                 return System.Data.DbType.Time;
             else
                 return System.Data.DbType.String;

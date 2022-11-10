@@ -378,6 +378,12 @@ namespace OrangeCloud.Core.AiExpression
                 this.Write(c.Value.ToString().Safe());
                 this.Write("'");//\"
             }
+            else if (c.Type == typeof(TimeSpan) || c.Type == typeof(TimeSpan?))
+            {
+                this.Write("'");//new DateTime(\" 
+                this.Write(c.Value.ToString().Safe());
+                this.Write("'");//\"
+            }
             else
             {
                 switch (Type.GetTypeCode(c.Value.GetType()))
@@ -535,6 +541,19 @@ namespace OrangeCloud.Core.AiExpression
                             }
                             break;
                         }
+                        else if (c.Value.GetType() == typeof(List<Guid?>))
+                        {
+                            var obj = (List<Guid?>)c.Value;
+                            for (int i = 0; i < obj.Count; i++)
+                            {
+                                if (i > 0)
+                                    this.Write(",");
+                                this.Write("N'");
+                                this.Write(obj[i].ToString().Safe());
+                                this.Write("'");
+                            }
+                            break;
+                        }
                         else if (c.Value.GetType() == typeof(Int32?[]))
                         {
                             var obj = (int?[])c.Value;
@@ -659,7 +678,46 @@ namespace OrangeCloud.Core.AiExpression
                             {
                                 if (i > 0)
                                     this.Write(",");
-                                this.Write("N'");
+                                this.Write("'");
+                                this.Write(obj[i].ToString().Safe());
+                                this.Write("'");
+                            }
+                            break;
+                        }
+                        else if (c.Value.GetType() == typeof(Guid?[]))
+                        {
+                            var obj = (Guid?[])c.Value;
+                            for (int i = 0; i < obj.Length; i++)
+                            {
+                                if (i > 0)
+                                    this.Write(",");
+                                this.Write("'");
+                                this.Write(obj[i].ToString().Safe());
+                                this.Write("'");
+                            }
+                            break;
+                        }
+                        else if (c.Value.GetType() == typeof(TimeSpan[]))
+                        {
+                            var obj = (TimeSpan[])c.Value;
+                            for (int i = 0; i < obj.Length; i++)
+                            {
+                                if (i > 0)
+                                    this.Write(",");
+                                this.Write("'");
+                                this.Write(obj[i].ToString().Safe());
+                                this.Write("'");
+                            }
+                            break;
+                        }
+                        else if (c.Value.GetType() == typeof(TimeSpan?[]))
+                        {
+                            var obj = (TimeSpan?[])c.Value;
+                            for (int i = 0; i < obj.Length; i++)
+                            {
+                                if (i > 0)
+                                    this.Write(",");
+                                this.Write("'");
                                 this.Write(obj[i].ToString().Safe());
                                 this.Write("'");
                             }
