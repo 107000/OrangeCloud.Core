@@ -61,5 +61,18 @@ namespace OrangeCloud.Core
             return "";
         }
 
+        public static bool IsXEnum(this Type t)
+        {
+            if (t == null)
+                return false;
+
+            if (t.IsEnum == true)
+                return true;
+
+            Type u = Nullable.GetUnderlyingType(t);
+
+            return (u != null) && u.IsEnum;
+        }
+
     }
 }

@@ -324,14 +324,16 @@ namespace OrangeCloud.Core
 
             if (showCols == "*")
             {
-                System.Reflection.PropertyInfo[] Property = t.GetProperties();
+                //System.Reflection.PropertyInfo[] Property = t.GetProperties();
 
-                foreach (System.Reflection.PropertyInfo pi in Property)
-                {
-                    sbCols.Append(pi.Name.Safe() + ",");
-                }
+                //foreach (System.Reflection.PropertyInfo pi in Property)
+                //{
+                //    sbCols.Append(pi.Name.Safe() + ",");
+                //}
 
-                sbCols.Remove(sbCols.Length - 1, 1);
+                //sbCols.Remove(sbCols.Length - 1, 1);
+
+                sbCols.Append("*");
             }
             else
             {
@@ -365,14 +367,16 @@ namespace OrangeCloud.Core
 
             if (showCols == "*")
             {
-                System.Reflection.PropertyInfo[] Property = t.GetProperties();
+                //System.Reflection.PropertyInfo[] Property = t.GetProperties();
 
-                foreach (System.Reflection.PropertyInfo pi in Property)
-                {
-                    sbCols.Append(pi.Name.Safe() + ",");
-                }
+                //foreach (System.Reflection.PropertyInfo pi in Property)
+                //{
+                //    sbCols.Append(pi.Name.Safe() + ",");
+                //}
 
-                sbCols.Remove(sbCols.Length - 1, 1);
+                //sbCols.Remove(sbCols.Length - 1, 1);
+
+                sbCols.Append("*");
             }
             else
             {
@@ -407,14 +411,16 @@ namespace OrangeCloud.Core
 
             if (showCols == "*")
             {
-                System.Reflection.PropertyInfo[] Property = t.GetProperties();
+                //System.Reflection.PropertyInfo[] Property = t.GetProperties();
 
-                foreach (System.Reflection.PropertyInfo pi in Property)
-                {
-                    sbCols.Append(pi.Name.Safe() + ",");
-                }
+                //foreach (System.Reflection.PropertyInfo pi in Property)
+                //{
+                //    sbCols.Append(pi.Name.Safe() + ",");
+                //}
 
-                sbCols.Remove(sbCols.Length - 1, 1);
+                //sbCols.Remove(sbCols.Length - 1, 1);
+
+                sbCols.Append("*");
             }
             else
             {
@@ -613,16 +619,36 @@ namespace OrangeCloud.Core
 
         private static MField GetValue(string FieldName, object obj)
         {
+            var isEnum = false;
+
+            var isStringEnum = false;
+
             var m = new MField();
 
             Type Ts = obj.GetType();
 
-            m.FieldType = GetDBType(Ts.GetProperty(FieldName).PropertyType);
+            var propertyInfo = Ts.GetProperty(FieldName);
 
-            object o = Ts.GetProperty(FieldName).GetValue(obj, null);
+            m.FieldType = GetDBType(propertyInfo.PropertyType, out isEnum);
+
+            object o = propertyInfo.GetValue(obj, null);
+
+            // 如果是枚举则需要判断存储类型
+            if (isEnum)
+            {
+                // 是否是字符串Enum
+                isStringEnum = IsStringEnum(propertyInfo);
+            }
 
             if (o == null)
                 m.FieldValue = null;
+            // 如果是字符类型的枚举，则需要转枚举的Key
+            else if (isStringEnum)
+            {
+                // 后期针对StringValue，支持各种类型的值(根据RealStringValue)
+
+                m.FieldValue = o.ToString();
+            }
             else
                 m.FieldValue = o;
 
@@ -693,6 +719,32 @@ namespace OrangeCloud.Core
 
             return m;
         }
+
+        internal static bool IsStringEnum(PropertyInfo proInfo)
+        {
+            object[] attrs = proInfo.GetCustomAttributes(typeof(StringValueAttribute), true);
+
+            if (attrs.Length == 1)
+            {
+                StringValueAttribute attr = (StringValueAttribute)attrs[0];
+
+                return attr.IsStringValue;
+            }
+
+            return false;
+        }
+
+        // 返回枚举项的描述信息。
+        //public static string GetDescription(this Enum enumValue)
+        //{
+        //    string value = enumValue.ToString();
+        //    System.Reflection.FieldInfo field = enumValue.GetType().GetField(value);
+        //    object[] objs = field.GetCustomAttributes(typeof(DescriptionAttribute), false);    //获取描述属性
+        //    if (objs.Length == 0)    //当描述属性没有时，直接返回名称
+        //        return value;
+        //    DescriptionAttribute descriptionAttribute = (DescriptionAttribute)objs[0];
+        //    return descriptionAttribute.Description;
+        //}
 
         /// <summary>
         /// 获取创建数据表的Sql语句
@@ -765,8 +817,10 @@ namespace OrangeCloud.Core
             return param;
         }
 
-        public static System.Data.DbType GetDBType(Type type)
+        public static System.Data.DbType GetDBType(Type type, out bool isEnum)
         {
+            isEnum = false;
+
             if (type == typeof(string))
                 return System.Data.DbType.String;
             else if (type == typeof(long?) || type == typeof(long))
@@ -789,6 +843,13 @@ namespace OrangeCloud.Core
                 return System.Data.DbType.Guid;
             else if (type == typeof(TimeSpan?) || type == typeof(TimeSpan))
                 return System.Data.DbType.Time;
+            else if (type.IsXEnum() == true)
+            {
+                // 如果是枚举
+                isEnum = true;
+
+                return System.Data.DbType.String;
+            }
             else
                 return System.Data.DbType.String;
         }

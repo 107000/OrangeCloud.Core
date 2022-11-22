@@ -110,7 +110,14 @@ namespace OrangeCloud.Core
         {
             return true;
         }
-
+        public static bool EqualsEnumKey(this object my, object obj)
+        {
+            return true;
+        }
+        public static bool NotEqualsEnumKey(this object my, object obj)
+        {
+            return true;
+        }
 
 
 

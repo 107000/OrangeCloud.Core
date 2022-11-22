@@ -1190,6 +1190,20 @@ namespace OrangeCloud.Core.AiExpression
                         this.Visit(m.Arguments[1]);
                         this.Write("))");
                         return m;
+                    case "EqualsEnumKey":
+                        this.Write("(");
+                        this.Visit(m.Arguments[0]);
+                        this.Write(" = '");
+                        this.Visit(m.Arguments[1]);
+                        this.Write("')");
+                        return m;
+                    case "NotEqualsEnumKey":
+                        this.Write("(");
+                        this.Visit(m.Arguments[0]);
+                        this.Write(" != '");
+                        this.Visit(m.Arguments[1]);
+                        this.Write("')");
+                        return m;
                     case "DynamicLike":
                         if (((ConstantExpression)m.Arguments[1]).Value != null)
                         {
