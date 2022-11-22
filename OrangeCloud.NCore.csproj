@@ -7,14 +7,14 @@
     <Authors>樊嵘</Authors>
     <Company>OrangeCloud</Company>
     <Product>OrangeCloud.ORM</Product>
-    <Version>3.2.3.6</Version>
+    <Version>3.2.3.8</Version>
     <AssemblyName>OrangeCloud.Core</AssemblyName>
     <RootNamespace>OrangeCloud.Core</RootNamespace>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <AssemblyVersion>3.2.3.6</AssemblyVersion>
+    <AssemblyVersion>3.2.3.8</AssemblyVersion>
     <PackageReleaseNotes></PackageReleaseNotes>
-    <FileVersion>3.2.3.6</FileVersion>
+    <FileVersion>3.2.3.8</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

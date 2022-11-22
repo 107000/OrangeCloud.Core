@@ -14,7 +14,7 @@ namespace OrangeCloud.Core
 
         public bool IsStringValue
         {
-            get { return this.IsStringValue; }
+            get { return this._IsStringValue; }
         }
     }
 }
